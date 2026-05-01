@@ -9,40 +9,52 @@ namespace SimilaritySearch.Infrastructure.Database;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, string>
 {
-    
+    public DbSet<Ad> Ads { get; set; }
     
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            
-            // map relationships
-            
-            
-            // SEEDING ENTITIES
-            
+    {
+        base.OnModelCreating(modelBuilder);
 
-            // SEEDING IDENTITY
+        modelBuilder.HasPostgresExtension("vector");
+        
+        // map relationships
+        
+        modelBuilder.Entity<Ad>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        // approximate index
+        modelBuilder.Entity<Ad>()
+            .HasIndex(i => i.DescriptionEmbedding)
+            .HasMethod("hnsw")
+            .HasOperators("vector_l2_ops")
+            .HasStorageParameter("m", 16)
+            .HasStorageParameter("ef_construction", 64);
 
-            // Init roles
-            RolesInit rolesInit = new RolesInit();
-            modelBuilder.Entity<Role>().HasData(rolesInit.GetRolesAm());
+        // SEEDING IDENTITY
 
-            // init users
-            UserInit userInit = new UserInit();
-            ApplicationUser admin = userInit.GetAdmin();
-            ApplicationUser manager = userInit.GetManager();
-            ApplicationUser demoUser = userInit.GetDemoUser();
+        // Init roles
+        var rolesInit = new RolesInit();
+        modelBuilder.Entity<Role>().HasData(rolesInit.GetRolesAm());
 
-            // add users to the table
-            modelBuilder.Entity<ApplicationUser>().HasData(admin, manager, demoUser);
+        // init users
+        var userInit = new UserInit();
+        var admin = userInit.GetAdmin();
+        var manager = userInit.GetManager();
+        var demoUser = userInit.GetDemoUser();
 
-            // assign roles to users
-            UserRolesInit userRolesInit = new UserRolesInit();
-            List<IdentityUserRole<string>> adminUserRoles = userRolesInit.GetRolesForAdmin();
-            List<IdentityUserRole<string>> managerUserRoles = userRolesInit.GetRolesForManager();
-            modelBuilder.Entity<IdentityUserRole<string>>().HasData(adminUserRoles);
-            modelBuilder.Entity<IdentityUserRole<string>>().HasData(managerUserRoles);
-        }
+        // add users to the table
+        modelBuilder.Entity<ApplicationUser>().HasData(admin, manager, demoUser);
+
+        // assign roles to users
+        var userRolesInit = new UserRolesInit();
+        var adminUserRoles = userRolesInit.GetRolesForAdmin();
+        var managerUserRoles = userRolesInit.GetRolesForManager();
+        modelBuilder.Entity<IdentityUserRole<string>>().HasData(adminUserRoles);
+        modelBuilder.Entity<IdentityUserRole<string>>().HasData(managerUserRoles);
+    }
 }
