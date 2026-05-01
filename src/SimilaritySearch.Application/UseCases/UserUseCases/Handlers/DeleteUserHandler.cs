@@ -1,9 +1,9 @@
-using StockMapSvelte.Application.Abstractions;
-using StockMapSvelte.Application.Abstractions.Repositories;
-using StockMapSvelte.Application.Exceptions.User;
-using StockMapSvelte.Application.UseCases.UserUseCases.Commands;
+using SimilaritySearch.Application.Abstractions;
+using SimilaritySearch.Application.Abstractions.Repositories;
+using SimilaritySearch.Application.Exceptions.User;
+using SimilaritySearch.Application.UseCases.UserUseCases.Commands;
 
-namespace StockMapSvelte.Application.UseCases.UserUseCases.Handlers;
+namespace SimilaritySearch.Application.UseCases.UserUseCases.Handlers;
 
 public class DeleteUserHandler
 {

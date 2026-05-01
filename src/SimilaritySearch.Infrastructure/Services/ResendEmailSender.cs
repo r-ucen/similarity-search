@@ -3,9 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Resend;
-using StockMapSvelte.Infrastructure.Identity;
+using SimilaritySearch.Infrastructure.Identity;
 
-namespace StockMapSvelte.Infrastructure.Services;
+namespace SimilaritySearch.Infrastructure.Services;
 
 public class ResendEmailSender : IEmailSender<ApplicationUser>
 {

@@ -1,10 +1,10 @@
 using System.Threading.RateLimiting;
 using Scalar.AspNetCore;
-using StockMapSvelte.Api;
-using StockMapSvelte.Api.Middleware;
-using StockMapSvelte.Application;
-using StockMapSvelte.Infrastructure;
-using StockMapSvelte.Infrastructure.Identity;
+using SimilaritySearch.Api;
+using SimilaritySearch.Api.Middleware;
+using SimilaritySearch.Application;
+using SimilaritySearch.Infrastructure;
+using SimilaritySearch.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 

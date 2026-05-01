@@ -1,4 +1,4 @@
-namespace StockMapSvelte.Infrastructure.Identity.Enums;
+namespace SimilaritySearch.Infrastructure.Identity.Enums;
 
 public enum Roles
 {

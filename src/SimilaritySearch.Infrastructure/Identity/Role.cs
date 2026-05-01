@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-namespace StockMapSvelte.Infrastructure.Identity;
+namespace SimilaritySearch.Infrastructure.Identity;
 
 public class Role : IdentityRole
 {

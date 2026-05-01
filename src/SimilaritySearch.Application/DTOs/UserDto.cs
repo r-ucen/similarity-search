@@ -1,4 +1,4 @@
-namespace StockMapSvelte.Application.DTOs;
+namespace SimilaritySearch.Application.DTOs;
 
 public class UserDto
 {

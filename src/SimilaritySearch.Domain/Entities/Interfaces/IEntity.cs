@@ -1,4 +1,4 @@
-namespace StockMapSvelte.Domain.Entities.Interfaces;
+namespace SimilaritySearch.Domain.Entities.Interfaces;
 
 public interface IEntity<TKey>
 {

@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using StockMapSvelte.Application.Abstractions;
+using SimilaritySearch.Application.Abstractions;
 
-namespace StockMapSvelte.Api.Services;
+namespace SimilaritySearch.Api.Services;
 
 public class UserContext : IUserContext
 {

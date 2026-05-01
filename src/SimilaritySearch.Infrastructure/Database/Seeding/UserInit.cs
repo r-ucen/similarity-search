@@ -1,6 +1,6 @@
-using StockMapSvelte.Infrastructure.Identity;
+using SimilaritySearch.Infrastructure.Identity;
 
-namespace StockMapSvelte.Infrastructure.Database.Seeding;
+namespace SimilaritySearch.Infrastructure.Database.Seeding;
 
 internal class UserInit
 {

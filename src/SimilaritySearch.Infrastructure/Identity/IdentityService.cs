@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
-using StockMapSvelte.Application.Abstractions;
+using SimilaritySearch.Application.Abstractions;
 
-namespace StockMapSvelte.Infrastructure.Identity;
+namespace SimilaritySearch.Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
 {

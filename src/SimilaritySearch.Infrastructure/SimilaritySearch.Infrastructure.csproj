@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>cfacb788-6db5-4fc3-995e-d4dc785a469e</UserSecretsId>
-    <RootNamespace>StockMapSvelte.Infrastructure</RootNamespace>
+    <RootNamespace>SimilaritySearch.Infrastructure</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

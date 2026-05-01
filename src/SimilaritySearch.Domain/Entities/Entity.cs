@@ -1,6 +1,6 @@
-using StockMapSvelte.Domain.Entities.Interfaces;
+using SimilaritySearch.Domain.Entities.Interfaces;
 
-namespace StockMapSvelte.Domain.Entities;
+namespace SimilaritySearch.Domain.Entities;
 
 public class Entity<TKey> : IEntity<TKey>
 { 

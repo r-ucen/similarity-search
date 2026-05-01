@@ -1,8 +1,8 @@
-using StockMapSvelte.Application.DTOs;
-using StockMapSvelte.Application.UseCases.UserUseCases.Commands;
-using StockMapSvelte.Application.UseCases.UserUseCases.Queries;
+using SimilaritySearch.Application.DTOs;
+using SimilaritySearch.Application.UseCases.UserUseCases.Commands;
+using SimilaritySearch.Application.UseCases.UserUseCases.Queries;
 
-namespace StockMapSvelte.Application.Abstractions.Facades;
+namespace SimilaritySearch.Application.Abstractions.Facades;
 
 public interface IUserFacade
 {

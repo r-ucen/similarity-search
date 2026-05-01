@@ -1,6 +1,6 @@
-using StockMapSvelte.Application.DTOs;
+using SimilaritySearch.Application.DTOs;
 
-namespace StockMapSvelte.Application.Abstractions.Repositories;
+namespace SimilaritySearch.Application.Abstractions.Repositories;
 
 public interface IUserRepository
 {

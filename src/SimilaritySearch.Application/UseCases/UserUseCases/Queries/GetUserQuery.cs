@@ -1,4 +1,4 @@
-namespace StockMapSvelte.Application.UseCases.UserUseCases.Queries;
+namespace SimilaritySearch.Application.UseCases.UserUseCases.Queries;
 
 public class GetUserQuery
 {

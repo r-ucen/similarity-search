@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>StockMapSvelte.Application</RootNamespace>
+    <RootNamespace>SimilaritySearch.Application</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,8 +1,8 @@
-using StockMapSvelte.Application.Abstractions.Facades;
-using StockMapSvelte.Application.Facade;
-using StockMapSvelte.Application.UseCases.UserUseCases.Handlers;
+using SimilaritySearch.Application.Abstractions.Facades;
+using SimilaritySearch.Application.Facade;
+using SimilaritySearch.Application.UseCases.UserUseCases.Handlers;
 
-namespace StockMapSvelte.Application;
+namespace SimilaritySearch.Application;
 using Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection

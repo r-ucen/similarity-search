@@ -1,4 +1,4 @@
-namespace StockMapSvelte.Application.Exceptions;
+namespace SimilaritySearch.Application.Exceptions;
 
 public abstract class AppException : Exception
 {

@@ -1,7 +1,7 @@
-using StockMapSvelte.Application.Abstractions.Repositories;
-using StockMapSvelte.Application.DTOs;
+using SimilaritySearch.Application.Abstractions.Repositories;
+using SimilaritySearch.Application.DTOs;
 
-namespace StockMapSvelte.Application.UseCases.UserUseCases.Handlers;
+namespace SimilaritySearch.Application.UseCases.UserUseCases.Handlers;
 
 public class GetAllUsersHandler
 {

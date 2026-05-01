@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using StockMapSvelte.Domain.Entities;
-using StockMapSvelte.Infrastructure.Database.Seeding;
-using StockMapSvelte.Infrastructure.Identity;
+using SimilaritySearch.Infrastructure.Database.Seeding;
+using SimilaritySearch.Infrastructure.Identity;
+using SimilaritySearch.Domain.Entities;
 
-namespace StockMapSvelte.Infrastructure.Database;
+namespace SimilaritySearch.Infrastructure.Database;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, string>
 {

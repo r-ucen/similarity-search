@@ -1,11 +1,11 @@
-using StockMapSvelte.Application.Abstractions;
-using StockMapSvelte.Application.Abstractions.Facades;
-using StockMapSvelte.Application.DTOs;
-using StockMapSvelte.Application.UseCases.UserUseCases.Commands;
-using StockMapSvelte.Application.UseCases.UserUseCases.Handlers;
-using StockMapSvelte.Application.UseCases.UserUseCases.Queries;
+using SimilaritySearch.Application.Abstractions;
+using SimilaritySearch.Application.Abstractions.Facades;
+using SimilaritySearch.Application.DTOs;
+using SimilaritySearch.Application.UseCases.UserUseCases.Commands;
+using SimilaritySearch.Application.UseCases.UserUseCases.Handlers;
+using SimilaritySearch.Application.UseCases.UserUseCases.Queries;
 
-namespace StockMapSvelte.Application.Facade;
+namespace SimilaritySearch.Application.Facade;
 
 public class UserFacade : IUserFacade
 {

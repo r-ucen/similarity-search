@@ -1,6 +1,6 @@
-using StockMapSvelte.Application.Exceptions;
+using SimilaritySearch.Application.Exceptions;
 
-namespace StockMapSvelte.Api.Middleware;
+namespace SimilaritySearch.Api.Middleware;
 
 public class GlobalExceptionMiddleware
 {

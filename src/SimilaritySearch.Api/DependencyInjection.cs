@@ -1,7 +1,7 @@
-using StockMapSvelte.Api.Services;
-using StockMapSvelte.Application.Abstractions;
+using SimilaritySearch.Api.Services;
+using SimilaritySearch.Application.Abstractions;
 
-namespace StockMapSvelte.Api;
+namespace SimilaritySearch.Api;
 
 public static class DependencyInjection
 {

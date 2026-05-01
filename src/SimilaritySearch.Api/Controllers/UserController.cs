@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using StockMapSvelte.Application.Abstractions.Facades;
-using StockMapSvelte.Application.UseCases.UserUseCases.Commands;
-using StockMapSvelte.Application.UseCases.UserUseCases.Queries;
+using SimilaritySearch.Application.Abstractions.Facades;
+using SimilaritySearch.Application.UseCases.UserUseCases.Commands;
+using SimilaritySearch.Application.UseCases.UserUseCases.Queries;
 
-namespace StockMapSvelte.Api.Controllers;
+namespace SimilaritySearch.Api.Controllers;
 
 [EnableRateLimiting("DataPolicy")]
 [ApiController]

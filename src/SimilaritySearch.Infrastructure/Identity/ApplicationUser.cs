@@ -1,8 +1,9 @@
+using System;
 using Microsoft.AspNetCore.Identity;
-using StockMapSvelte.Domain.Entities;
-using StockMapSvelte.Domain.Entities.Interfaces;
+using SimilaritySearch.Domain.Entities.Interfaces;
+using SimilaritySearch.Domain.Entities;
 
-namespace StockMapSvelte.Infrastructure.Identity;
+namespace SimilaritySearch.Infrastructure.Identity;
 
 public sealed class ApplicationUser : IdentityUser<string>, IUser<string>
 {

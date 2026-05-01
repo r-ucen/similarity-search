@@ -1,4 +1,4 @@
-namespace StockMapSvelte.Application.Abstractions;
+namespace SimilaritySearch.Application.Abstractions;
 
 public interface IIdentityService
 {

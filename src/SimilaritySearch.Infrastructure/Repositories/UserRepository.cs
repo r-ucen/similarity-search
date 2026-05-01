@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using StockMapSvelte.Application.Abstractions.Repositories;
-using StockMapSvelte.Application.DTOs;
-using StockMapSvelte.Infrastructure.Identity;
+using SimilaritySearch.Application.Abstractions.Repositories;
+using SimilaritySearch.Application.DTOs;
+using SimilaritySearch.Infrastructure.Identity;
 
-namespace StockMapSvelte.Infrastructure.Repositories;
+namespace SimilaritySearch.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {

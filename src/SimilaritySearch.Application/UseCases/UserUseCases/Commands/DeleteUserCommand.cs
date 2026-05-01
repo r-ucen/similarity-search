@@ -1,4 +1,4 @@
-namespace StockMapSvelte.Application.UseCases.UserUseCases.Commands;
+namespace SimilaritySearch.Application.UseCases.UserUseCases.Commands;
 
 public class DeleteUserCommand
 {

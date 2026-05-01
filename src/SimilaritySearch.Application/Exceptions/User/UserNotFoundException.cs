@@ -1,4 +1,4 @@
-namespace StockMapSvelte.Application.Exceptions.User;
+namespace SimilaritySearch.Application.Exceptions.User;
 
 public class UserNotFoundException : AppException
 {

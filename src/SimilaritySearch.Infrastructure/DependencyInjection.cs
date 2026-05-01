@@ -2,17 +2,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using StockMapSvelte.Infrastructure.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Resend;
-using StockMapSvelte.Application.Abstractions;
-using StockMapSvelte.Application.Abstractions.Repositories;
-using StockMapSvelte.Infrastructure.Identity;
-using StockMapSvelte.Infrastructure.Repositories;
-using StockMapSvelte.Infrastructure.Services;
+using SimilaritySearch.Application.Abstractions;
+using SimilaritySearch.Application.Abstractions.Repositories;
+using SimilaritySearch.Infrastructure.Database;
+using SimilaritySearch.Infrastructure.Identity;
+using SimilaritySearch.Infrastructure.Repositories;
+using SimilaritySearch.Infrastructure.Services;
 using YahooQuotesApi;
 
-namespace StockMapSvelte.Infrastructure;
+namespace SimilaritySearch.Infrastructure;
 
 public static class DependencyInjection
 {

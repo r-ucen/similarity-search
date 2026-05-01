@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace StockMapSvelte.Infrastructure.Database.Seeding;
+namespace SimilaritySearch.Infrastructure.Database.Seeding;
 
 internal class UserRolesInit
 {
