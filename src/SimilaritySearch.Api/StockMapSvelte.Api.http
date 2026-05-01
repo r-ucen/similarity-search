@@ -1,0 +1,10 @@
+@StockMapSvelte.Api_HostAddress = https://localhost:7086
+
+GET {{StockMapSvelte.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{StockMapSvelte.Api_HostAddress}}/weatherforecast
+
+###
