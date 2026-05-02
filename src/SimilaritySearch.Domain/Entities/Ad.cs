@@ -12,7 +12,7 @@ public class Ad : Entity<Guid>
     public string? Email { get; set; }
     public required string Location { get; set; }
     public required decimal Price { get; set; }
-    public required string Currency { get; set; } = "Kč";
+    public required string Currency { get; set; }
     
     public required string Description { get; set; }
     

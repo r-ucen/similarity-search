@@ -1,5 +1,7 @@
+using SimilaritySearch.Application.Abstractions;
 using SimilaritySearch.Application.Abstractions.Facades;
 using SimilaritySearch.Application.Facade;
+using SimilaritySearch.Application.Services;
 using SimilaritySearch.Application.UseCases.UserUseCases.Handlers;
 
 namespace SimilaritySearch.Application;
@@ -13,6 +15,7 @@ public static class DependencyInjection
         services.AddScoped<DeleteUserHandler>();
         services.AddScoped<GetAllUsersHandler>();
         services.AddScoped<GetUserHandler>();
+        services.AddScoped<IAdService, AdService>();
         
         return services;
     }

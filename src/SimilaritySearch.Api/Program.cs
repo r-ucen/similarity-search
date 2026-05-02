@@ -3,10 +3,17 @@ using Scalar.AspNetCore;
 using SimilaritySearch.Api;
 using SimilaritySearch.Api.Middleware;
 using SimilaritySearch.Application;
+using SimilaritySearch.Domain;
 using SimilaritySearch.Infrastructure;
 using SimilaritySearch.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var storeSettings = builder.Configuration
+    .GetSection("CurrencySettings")
+    .Get<CurrencySettings>() ?? throw new Exception("CurrencySettings section is missing in json config");;
+
+builder.Services.AddSingleton(storeSettings);
 
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 
