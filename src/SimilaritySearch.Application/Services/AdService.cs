@@ -77,7 +77,8 @@ public class AdService : IAdService
             Price = entity.Price,
             Currency = _currencySettings.CurrencySymbol,
             IsReupload = entity.IsReupload,
-            ReuploadReason = entity.ReuploadReason
+            ReuploadReason = entity.ReuploadReason,
+            CreatedAt = DateTime.UtcNow
         };
     }
 

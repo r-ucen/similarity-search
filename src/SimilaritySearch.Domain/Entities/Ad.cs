@@ -15,6 +15,7 @@ public class Ad : Entity<Guid>
     public required string Currency { get; set; }
     
     public required string Description { get; set; }
+    public DateTime CreatedAt { get; set; }
     
     // EmbeddingGemma-300M embedding output size 768
     [Column(TypeName = "vector(768)")]
