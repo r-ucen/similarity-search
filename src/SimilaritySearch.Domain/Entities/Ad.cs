@@ -25,4 +25,5 @@ public class Ad : Entity<Guid>
     public string? ReuploadReason { get; set; }
     
     public bool IsDeleted { get; set; } = false;
+    public bool ReadyToBePresented { get; set; } = false;
 }

@@ -20,7 +20,7 @@ public class AdRepository : IAdRepository
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.Ads
             .AsNoTracking()
-            .Where(a => !a.IsDeleted)
+            .Where(a => !a.IsDeleted && a.ReadyToBePresented)
             .Select(a => new AdDto
             {
                 Id = a.Id,
@@ -43,7 +43,7 @@ public class AdRepository : IAdRepository
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.Ads
             .AsNoTracking()
-            .Where(a => a.Id == id && !a.IsDeleted)
+            .Where(a => a.Id == id && !a.IsDeleted && a.ReadyToBePresented)
             .Select(a => new AdDto
             {
                 Id = a.Id,
