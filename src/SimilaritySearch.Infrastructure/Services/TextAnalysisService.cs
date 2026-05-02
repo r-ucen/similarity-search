@@ -22,15 +22,14 @@ public class TextAnalysisService : ITextAnalysisService
         return new Vector(embedding.Vector);
     }
 
-    public async Task<string> AnalyzeDuplicateAsync(AdDto newAd, AdDto oldAd, string hint, CancellationToken ct)
+    public async Task<string> AnalyzeDuplicateAsync(AdDto newAd, AdDto? oldAd, CancellationToken ct)
     {
         var prompt = $"""
                       Porovnej tyto dva inzeráty:
                       Inzerát A: {newAd.Summarize()}
-                      Inzerát B: {oldAd.Summarize()}
+                      Inzerát B: {oldAd?.Summarize() ?? "Druhý inzerát k porovnání neexistuje, inzerát A není duplikátem/re-uploadem."}
 
                       Je inzerát A pravděpodobně re-uploadem inzerátu B?
-                      {hint}
                       Zaměř se na detaily jako výbava, specifické chyby nebo styl psaní.
                       Odpověz ve formátu: ROZHODNUTÍ: [ANO/NE] | DŮVOD: [Stručné vysvětlení a napsání rozdílů: zda je rozdíl mezi userId (uživatel vytvořil nový účet), lokace, cena, rozdíl mezi daty vytvoření]
                       """;
