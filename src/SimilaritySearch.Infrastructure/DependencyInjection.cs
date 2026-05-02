@@ -11,6 +11,8 @@ using SimilaritySearch.Infrastructure.Identity;
 using SimilaritySearch.Infrastructure.Repositories;
 using SimilaritySearch.Infrastructure.Services;
 using YahooQuotesApi;
+using Microsoft.Extensions.AI;
+using OllamaSharp;
 
 namespace SimilaritySearch.Infrastructure;
 
@@ -52,6 +54,20 @@ public static class DependencyInjection
             {
                 policy.RequireAuthenticatedUser();
             });
+        
+        var ollamaUri = configuration.GetSection("ollamaUri").Value ?? throw new InvalidOperationException("Ollama URI is not configured.");
+        
+        var chatClient = new OllamaApiClient(new Uri(ollamaUri), "deepseek-r1:1.5b");
+
+        var embeddingClient = new OllamaApiClient(new Uri(ollamaUri), "embeddinggemma:latest");
+        
+        services.AddDistributedMemoryCache();
+        
+        services.AddChatClient(chatClient)
+            .UseDistributedCache();
+        
+        services.AddEmbeddingGenerator(embeddingClient)
+            .UseDistributedCache();
         
         return services;
     }

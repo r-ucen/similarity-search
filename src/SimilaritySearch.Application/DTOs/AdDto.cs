@@ -14,4 +14,11 @@ public class AdDto
     public bool IsReupload { get; set; }
     public string? ReuploadReason { get; set; }
     public DateTime CreatedAt { get; set; }
+
+    public string Summarize()
+    {
+        return $"UserId: {UserId}, Jméno uživatele: {UserName}, Lokace: {Location}, Cena: {Price} {Currency}, Vytvořeno: {CreatedAt}\n" +
+               $"Popis: {Description}";
+    }
+    
 }
