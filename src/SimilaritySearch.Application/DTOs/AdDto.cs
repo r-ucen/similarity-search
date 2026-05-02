@@ -13,4 +13,5 @@ public class AdDto
     public string Description { get; set; } = string.Empty;
     public bool IsReupload { get; set; }
     public string? ReuploadReason { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
