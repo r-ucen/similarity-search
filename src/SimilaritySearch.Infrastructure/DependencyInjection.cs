@@ -1,3 +1,5 @@
+using Hangfire.PostgreSql;
+using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +15,7 @@ using SimilaritySearch.Infrastructure.Services;
 using YahooQuotesApi;
 using Microsoft.Extensions.AI;
 using OllamaSharp;
+using SimilaritySearch.Application.Services;
 
 namespace SimilaritySearch.Infrastructure;
 
@@ -46,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<IAdRepository, AdRepository>();
         services.AddScoped<ITextAnalysisService, TextAnalysisService>();
         services.AddScoped<IAdAnalysisService, AdAnalysisService>();
+        services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
         services.AddScoped<ILevenshteinService, LevenshteinService>();
         
         services.AddSingleton<YahooQuotes>(new YahooQuotesBuilder().Build());
@@ -72,6 +76,19 @@ public static class DependencyInjection
         
         services.AddEmbeddingGenerator(embeddingClient)
             .UseDistributedCache();
+        
+        // Hangfire
+        services.AddHangfire((config) =>
+        {
+            config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(opts =>
+                    opts.UseNpgsqlConnection(connectionString));
+        });
+        
+        services.AddHangfireServer();
         
         return services;
     }

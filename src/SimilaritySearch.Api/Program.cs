@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using Hangfire;
 using Scalar.AspNetCore;
 using SimilaritySearch.Api;
 using SimilaritySearch.Api.Middleware;
@@ -186,6 +187,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    app.UseHangfireDashboard();
 }
 
 app.UseHttpsRedirection();
