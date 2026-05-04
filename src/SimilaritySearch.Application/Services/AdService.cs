@@ -14,12 +14,14 @@ public class AdService : IAdService
     private readonly IUserContext _userContext;
     private readonly IAdRepository _adRepository;
     private readonly CurrencySettings _currencySettings;
+    private readonly IBackgroundJobService _backgroundJobService;
     
-    public AdService(IUserContext userContext, IAdRepository adRepository, CurrencySettings currencySettings)
+    public AdService(IUserContext userContext, IAdRepository adRepository, CurrencySettings currencySettings, IBackgroundJobService backgroundJobService)
     {
         _userContext = userContext;
         _adRepository = adRepository;
         _currencySettings = currencySettings;
+        _backgroundJobService = backgroundJobService;
     }
     
     public async Task<IEnumerable<AdDto>> GetAllAdsAsync()
@@ -70,7 +72,7 @@ public class AdService : IAdService
             throw new AdCreationFailedException("Failed to create ad.");
         }
 
-        return new AdDto()
+        var createdAd = new AdDto()
         {
             Id = entity.Id,
             UserId = entity.UserId,
@@ -87,6 +89,10 @@ public class AdService : IAdService
             ReuploadReason = entity.ReuploadReason,
             CreatedAt = entity.CreatedAt
         };
+        
+        _backgroundJobService.EnqueueAdAnalysisAsync(createdAd);
+
+        return createdAd;
     }
 
     public async Task<AdDto> GetAdAsync(Guid id)
