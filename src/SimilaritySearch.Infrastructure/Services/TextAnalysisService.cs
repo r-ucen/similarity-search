@@ -25,13 +25,14 @@ public class TextAnalysisService : ITextAnalysisService
     public async Task<string> AnalyzeDuplicateAsync(AdDto newAd, AdDto? oldAd, CancellationToken ct)
     {
         var prompt = $"""
-                      Porovnej tyto dva inzeráty:
+                      Důležité: Mluv jen česky!
+                      Porovnej tyto dva inzeráty aut:
                       Inzerát A: {newAd.Summarize()}
                       Inzerát B: {oldAd?.Summarize() ?? "Druhý inzerát k porovnání neexistuje, inzerát A není duplikátem/re-uploadem."}
 
                       Je inzerát A pravděpodobně re-uploadem inzerátu B?
                       Zaměř se na detaily jako výbava, specifické chyby nebo styl psaní.
-                      Odpověz ve formátu: ROZHODNUTÍ: [ANO/NE] | DŮVOD: [Stručné vysvětlení a napsání rozdílů: zda je rozdíl mezi userId (uživatel vytvořil nový účet), lokace, cena, rozdíl mezi daty vytvoření]
+                      Odpověz ve formátu: ROZHODNUTÍ: [ANO/NE] | DŮVOD: [Stručné vysvětlení a napsání rozdílů: zda je rozdíl mezi userId (uživatel vytvořil nový účet), lokace, cena, rozdíl mezi daty vytvoření, specifikace auta (pokud se specifikace liší, například je odlišný motor a výkon, nejde o reupload)]
                       """;
         
         var response = await _chatClient.GetResponseAsync(prompt, cancellationToken: ct);

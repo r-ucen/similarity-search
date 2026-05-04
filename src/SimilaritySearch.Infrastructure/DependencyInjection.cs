@@ -44,6 +44,9 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAdRepository, AdRepository>();
+        services.AddScoped<ITextAnalysisService, TextAnalysisService>();
+        services.AddScoped<IAdAnalysisService, AdAnalysisService>();
+        services.AddScoped<ILevenshteinService, LevenshteinService>();
         
         services.AddSingleton<YahooQuotes>(new YahooQuotesBuilder().Build());
         
