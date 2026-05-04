@@ -5,6 +5,8 @@ public class AdDto
     public Guid Id { get; set; }
     public string UserId { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
+    public string BrandModel { get; set; } = string.Empty;
+    public string Motor { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string? Email { get; set; }
     public string Location { get; set; } = string.Empty;
@@ -17,7 +19,7 @@ public class AdDto
 
     public string Summarize()
     {
-        return $"UserId: {UserId}, Jméno uživatele: {UserName}, Lokace: {Location}, Cena: {Price} {Currency}, Vytvořeno: {CreatedAt}\n" +
+        return $"Značka a model: {BrandModel}, Motor: {Motor}, UserId: {UserId}, Jméno uživatele: {UserName}, Lokace: {Location}, Cena: {Price} {Currency}, Vytvořeno: {CreatedAt}\n" +
                $"Popis: {Description}";
     }
     

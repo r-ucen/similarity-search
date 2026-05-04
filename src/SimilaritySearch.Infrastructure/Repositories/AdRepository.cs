@@ -26,6 +26,8 @@ public class AdRepository : IAdRepository
                 Id = a.Id,
                 UserId = a.UserId,
                 UserName = a.UserName,
+                BrandModel = a.BrandModel,
+                Motor = a.Motor,
                 PhoneNumber = a.PhoneNumber,
                 Email = a.Email,
                 Description = a.Description,
@@ -49,6 +51,8 @@ public class AdRepository : IAdRepository
                 Id = a.Id,
                 UserId = a.UserId,
                 UserName = a.UserName,
+                BrandModel = a.BrandModel,
+                Motor = a.Motor,
                 PhoneNumber = a.PhoneNumber,
                 Email = a.Email,
                 Description = a.Description,
@@ -79,6 +83,8 @@ public class AdRepository : IAdRepository
         }
         
         existingAd.UserName = updatedAd.UserName;
+        existingAd.BrandModel = updatedAd.BrandModel;
+        existingAd.Motor = updatedAd.Motor;
         existingAd.PhoneNumber = updatedAd.PhoneNumber;
         existingAd.Email = updatedAd.Email;
         existingAd.Description = updatedAd.Description;
