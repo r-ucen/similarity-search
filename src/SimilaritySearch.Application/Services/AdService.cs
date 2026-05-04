@@ -59,7 +59,8 @@ public class AdService : IAdService
             Currency = _currencySettings.CurrencySymbol,
             IsReupload = false,
             ReuploadReason = null,
-            IsDeleted = false
+            IsDeleted = false,
+            CreatedAt = DateTime.UtcNow
         };
         
         var result = await _adRepository.CreateAdAsync(entity);
@@ -84,7 +85,7 @@ public class AdService : IAdService
             Currency = _currencySettings.CurrencySymbol,
             IsReupload = entity.IsReupload,
             ReuploadReason = entity.ReuploadReason,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = entity.CreatedAt
         };
     }
 
