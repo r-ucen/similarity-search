@@ -58,9 +58,10 @@ public static class DependencyInjection
                 policy.RequireAuthenticatedUser();
             });
         
+        // Ai clients
         var ollamaUri = configuration.GetSection("ollamaUri").Value ?? throw new InvalidOperationException("Ollama URI is not configured.");
         
-        var chatClient = new OllamaApiClient(new Uri(ollamaUri), "deepseek-r1:1.5b");
+        var chatClient = new OllamaApiClient(new Uri(ollamaUri), "gemma3:1b");
 
         var embeddingClient = new OllamaApiClient(new Uri(ollamaUri), "embeddinggemma:latest");
         
