@@ -8,6 +8,8 @@ public class Ad : Entity<Guid>
 {
     public required string UserId { get; set; }
     public required string UserName { get; set; }
+    public required string BrandModel { get; set; }
+    public required string Motor { get; set; }
     public required string PhoneNumber { get; set; }
     public string? Email { get; set; }
     public required string Location { get; set; }
@@ -25,4 +27,5 @@ public class Ad : Entity<Guid>
     public string? ReuploadReason { get; set; }
     
     public bool IsDeleted { get; set; } = false;
+    public bool ReadyToBePresented { get; set; } = false;
 }

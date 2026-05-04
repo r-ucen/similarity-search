@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Pgvector;
+using Pgvector.EntityFrameworkCore;
 using SimilaritySearch.Application.Abstractions.Repositories;
 using SimilaritySearch.Application.DTOs;
 using SimilaritySearch.Domain.Entities;
@@ -14,18 +16,86 @@ public class AdRepository : IAdRepository
     {
         _contextFactory = contextFactory;
     }
+
+    public async Task SetEmbeddingAsync(Guid adId, Vector embedding)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId);
+
+        if (ad == null)
+        {
+            throw new InvalidOperationException($"Ad with id: {adId} was not found");
+        }
+
+        ad.DescriptionEmbedding = embedding;
+        await context.SaveChangesAsync();
+    }
+
+    public async Task SetReuploadAsync(Guid adId, bool reupload)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId);
+        if (ad == null)
+        {
+            throw new InvalidOperationException($"Ad with id: {adId} was not found");
+        }
+        ad.IsReupload = reupload;
+        await context.SaveChangesAsync(); 
+    }
+
+    public async Task SetReuploadReasonAsync(Guid adId, string reason)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId);
+        if (ad == null)
+        {
+            throw new InvalidOperationException($"Ad with id: {adId} was not found");
+        }
+        ad.ReuploadReason = reason;
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<Tuple<Ad, double>?> GetMostSimilarAdAsync(Guid adId, CancellationToken ct)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId, cancellationToken: ct);
+        if (ad == null)
+        {
+            throw new InvalidOperationException($"Ad with id: {adId} was not found");
+        }
+
+        return await context.Ads
+            .Where(x => x.Id != ad.Id)
+            .OrderBy(x => x.DescriptionEmbedding!.CosineDistance(ad.DescriptionEmbedding!))
+            .Select(x => new Tuple<Ad, double>(x, x.DescriptionEmbedding!.CosineDistance(ad.DescriptionEmbedding!)))
+            .FirstOrDefaultAsync(cancellationToken: ct);
+    }
+
+    public async Task SetReadyToBePresentedAsync(Guid adId, bool readyToBePresented)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId);
+        if (ad == null)
+        {
+            throw new InvalidOperationException($"Ad with id: {adId} was not found");
+        }
+        ad.ReadyToBePresented =  readyToBePresented;
+        await context.SaveChangesAsync();
+    }
     
     public async Task<IEnumerable<AdDto>?> GetAllAdsAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.Ads
             .AsNoTracking()
-            .Where(a => !a.IsDeleted)
+            .Where(a => !a.IsDeleted && a.ReadyToBePresented)
             .Select(a => new AdDto
             {
                 Id = a.Id,
                 UserId = a.UserId,
                 UserName = a.UserName,
+                BrandModel = a.BrandModel,
+                Motor = a.Motor,
                 PhoneNumber = a.PhoneNumber,
                 Email = a.Email,
                 Description = a.Description,
@@ -43,12 +113,14 @@ public class AdRepository : IAdRepository
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.Ads
             .AsNoTracking()
-            .Where(a => a.Id == id && !a.IsDeleted)
+            .Where(a => a.Id == id && !a.IsDeleted && a.ReadyToBePresented)
             .Select(a => new AdDto
             {
                 Id = a.Id,
                 UserId = a.UserId,
                 UserName = a.UserName,
+                BrandModel = a.BrandModel,
+                Motor = a.Motor,
                 PhoneNumber = a.PhoneNumber,
                 Email = a.Email,
                 Description = a.Description,
@@ -79,6 +151,8 @@ public class AdRepository : IAdRepository
         }
         
         existingAd.UserName = updatedAd.UserName;
+        existingAd.BrandModel = updatedAd.BrandModel;
+        existingAd.Motor = updatedAd.Motor;
         existingAd.PhoneNumber = updatedAd.PhoneNumber;
         existingAd.Email = updatedAd.Email;
         existingAd.Description = updatedAd.Description;

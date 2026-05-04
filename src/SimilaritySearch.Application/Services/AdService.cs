@@ -14,12 +14,14 @@ public class AdService : IAdService
     private readonly IUserContext _userContext;
     private readonly IAdRepository _adRepository;
     private readonly CurrencySettings _currencySettings;
+    private readonly IBackgroundJobService _backgroundJobService;
     
-    public AdService(IUserContext userContext, IAdRepository adRepository, CurrencySettings currencySettings)
+    public AdService(IUserContext userContext, IAdRepository adRepository, CurrencySettings currencySettings, IBackgroundJobService backgroundJobService)
     {
         _userContext = userContext;
         _adRepository = adRepository;
         _currencySettings = currencySettings;
+        _backgroundJobService = backgroundJobService;
     }
     
     public async Task<IEnumerable<AdDto>> GetAllAdsAsync()
@@ -31,6 +33,8 @@ public class AdService : IAdService
     {
         var missingInfo = string.IsNullOrWhiteSpace(ad.Description) ||
                            string.IsNullOrWhiteSpace(ad.Location) ||
+                           string.IsNullOrWhiteSpace(ad.BrandModel) ||
+                           string.IsNullOrWhiteSpace(ad.Motor) ||
                            ad.Price <= 0 ||
                            string.IsNullOrWhiteSpace(ad.PhoneNumber) ||
                            string.IsNullOrWhiteSpace(ad.UserName);
@@ -47,6 +51,8 @@ public class AdService : IAdService
             Id = Guid.NewGuid(),
             UserId = userId,
             UserName = ad.UserName.Trim(),
+            BrandModel = ad.BrandModel.Trim(),
+            Motor = ad.Motor.Trim(),
             PhoneNumber = ad.PhoneNumber.Trim(),
             Email = ad.Email?.Trim(),
             Description = ad.Description.Trim(),
@@ -55,7 +61,8 @@ public class AdService : IAdService
             Currency = _currencySettings.CurrencySymbol,
             IsReupload = false,
             ReuploadReason = null,
-            IsDeleted = false
+            IsDeleted = false,
+            CreatedAt = DateTime.UtcNow
         };
         
         var result = await _adRepository.CreateAdAsync(entity);
@@ -65,11 +72,13 @@ public class AdService : IAdService
             throw new AdCreationFailedException("Failed to create ad.");
         }
 
-        return new AdDto()
+        var createdAd = new AdDto()
         {
             Id = entity.Id,
             UserId = entity.UserId,
             UserName = entity.UserName,
+            BrandModel = entity.BrandModel,
+            Motor = entity.Motor,
             PhoneNumber = entity.PhoneNumber,
             Email = entity.Email,
             Description = entity.Description,
@@ -78,8 +87,12 @@ public class AdService : IAdService
             Currency = _currencySettings.CurrencySymbol,
             IsReupload = entity.IsReupload,
             ReuploadReason = entity.ReuploadReason,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = entity.CreatedAt
         };
+        
+        _backgroundJobService.EnqueueAdAnalysisAsync(createdAd);
+
+        return createdAd;
     }
 
     public async Task<AdDto> GetAdAsync(Guid id)
@@ -112,6 +125,12 @@ public class AdService : IAdService
 
         if (!string.IsNullOrWhiteSpace(ad.Location))
             existing.Location = ad.Location.Trim();
+        
+        if (!string.IsNullOrWhiteSpace(ad.BrandModel))
+            existing.BrandModel = ad.BrandModel.Trim();
+        
+        if (!string.IsNullOrWhiteSpace(ad.Motor))
+            existing.Motor = ad.Motor.Trim();
 
         if (!string.IsNullOrWhiteSpace(ad.PhoneNumber))
             existing.PhoneNumber = ad.PhoneNumber.Trim();
@@ -134,6 +153,8 @@ public class AdService : IAdService
                 Id = adId,
                 UserId = existing.UserId,
                 UserName = existing.UserName.Trim(),
+                BrandModel = existing.BrandModel.Trim(),
+                Motor = existing.Motor.Trim(),
                 PhoneNumber = existing.PhoneNumber.Trim(),
                 Email = existing.Email?.Trim(),
                 Description = existing.Description.Trim(),
