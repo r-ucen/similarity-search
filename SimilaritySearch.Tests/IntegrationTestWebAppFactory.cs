@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SimilaritySearch.Infrastructure.Database;
 using Testcontainers.Ollama;
 using Testcontainers.PostgreSql;
 
@@ -26,6 +28,11 @@ public class IntegrationTestWebApplicationFactory : WebApplicationFactory<Progra
         await _ollamaContainer.StartAsync();
         await _ollamaContainer.ExecAsync(["ollama", "pull", "gemma3:1b"]);
         await _ollamaContainer.ExecAsync(["ollama", "pull", "embeddinggemma:latest"]);
+
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        await dbContext.Database.MigrateAsync(); 
     }
 
     public new async Task DisposeAsync()
