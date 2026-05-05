@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="SimilaritySearch.Tests/SimilaritySearch.Tests.csproj" />
   <Project Path="src/SimilaritySearch.Api/SimilaritySearch.Api.csproj" Id="954b4387-fb2f-4e0d-bd20-c5bf8866a2bb" />
   <Project Path="src/SimilaritySearch.Application/SimilaritySearch.Application.csproj" Id="9e6b957c-0017-4ead-a1ba-3af2ae3e8662" />
   <Project Path="src/SimilaritySearch.Domain/SimilaritySearch.Domain.csproj" Id="b01aa7e0-115e-4b05-b243-6844767e7d0e" />
