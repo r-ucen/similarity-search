@@ -36,14 +36,8 @@ public class IntegrationTestWebApplicationFactory : WebApplicationFactory<Progra
     
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureAppConfiguration((_, config) =>
-        {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                { "ConnectionStrings:DefaultConnection", _pgVectorContainer.GetConnectionString() },
-                { "ollamaUri", _ollamaContainer.GetConnectionString() }
-            });
-        });
+        Environment.SetEnvironmentVariable("ConnectionStrings:DefaultConnection", _pgVectorContainer.GetConnectionString());
+        Environment.SetEnvironmentVariable("ollamaUri", _ollamaContainer.GetConnectionString());
         
         builder.ConfigureTestServices(services =>
         {
