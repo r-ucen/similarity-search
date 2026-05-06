@@ -148,7 +148,7 @@ public class AdService : IAdService
 
         if (result > 0)
         {
-            return new AdDto()
+            var createdAd = new AdDto()
             {
                 Id = adId,
                 UserId = existing.UserId,
@@ -164,6 +164,10 @@ public class AdService : IAdService
                 IsReupload = existing.IsReupload,
                 ReuploadReason = existing.ReuploadReason
             };
+            
+            _backgroundJobService.EnqueueAdAnalysisAsync(createdAd);
+            
+            return createdAd;
         }
         
         throw new AdEditFailedException("Failed to edit ad.");
