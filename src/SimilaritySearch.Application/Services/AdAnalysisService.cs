@@ -43,15 +43,12 @@ public class AdAnalysisService : IAdAnalysisService
         var isReupload = false;
 
         isReupload = mostSimilarAd.Item2 < threshold;
-        Console.WriteLine($"CosineDistance: {mostSimilarAd.Item2} for ad with name: {mostSimilarAd.Item1.UserName} and description: {mostSimilarAd.Item1.Description}");
 
         if (isReupload)
         {
             var brandModelDistance = _levenshteinService.CalculateDistance(NormalizeForComparison(ad.BrandModel), NormalizeForComparison(mostSimilarAd.Item1.BrandModel));
             var motorDistance = _levenshteinService.CalculateDistance(NormalizeForComparison(ad.Motor), NormalizeForComparison(mostSimilarAd.Item1.Motor));
             
-            Console.WriteLine($"Levenshtein distance for BrandModel: {brandModelDistance} and Motor: {motorDistance} for ad: {mostSimilarAd.Item1.BrandModel + "" + mostSimilarAd.Item1.Motor + "vs" + ad.BrandModel + "" + ad.Motor}");
-
             if (brandModelDistance >= 2 || motorDistance >= 2)
             {
                 isReupload = false;
