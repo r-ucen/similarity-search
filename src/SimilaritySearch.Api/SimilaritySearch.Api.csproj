@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>ef3bf0df-566d-46c5-bbeb-0cff34b416d5</UserSecretsId>
+    <UserSecretsId>ef3bf0df-566d-46c5-bbeb-0cff34b416d4</UserSecretsId>
     <RootNamespace>SimilaritySearch.Api</RootNamespace>
   </PropertyGroup>
 
