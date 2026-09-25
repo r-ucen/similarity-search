@@ -9,12 +9,10 @@ namespace SimilaritySearch.Infrastructure.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<Role> _roleManager;
 
-    public UserRepository(UserManager<ApplicationUser> userManager, RoleManager<Role> roleManager)
+    public UserRepository(UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
-        _roleManager = roleManager;
     }
 
     public async Task<bool> DeleteAsync(string userId)
