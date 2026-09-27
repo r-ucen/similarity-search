@@ -1,5 +1,4 @@
 using SimilaritySearch.Application.Abstractions;
-using SimilaritySearch.Application.Abstractions.Repositories;
 using SimilaritySearch.Application.Exceptions.User;
 using SimilaritySearch.Application.UseCases.UserUseCases.Commands;
 
@@ -7,12 +6,12 @@ namespace SimilaritySearch.Application.UseCases.UserUseCases.Handlers;
 
 public class DeleteUserHandler
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IIdentityService _identityService;
     private readonly IUserContext _userContext;
 
-    public DeleteUserHandler(IUserRepository userRepository, IUserContext userContext)
+    public DeleteUserHandler(IIdentityService identityService, IUserContext userContext)
     {
-        _userRepository = userRepository;
+        _identityService = identityService;
         _userContext = userContext;
     }
     
@@ -24,7 +23,7 @@ public class DeleteUserHandler
             throw new DeleteYourselfNotPossibleException("Cannot delete yourself.");
         }
 
-        var result = await _userRepository.DeleteAsync(cmd.UserId);
+        var result = await _identityService.DeleteAsync(cmd.UserId);
         
         if (!result)
         {

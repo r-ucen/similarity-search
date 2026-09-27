@@ -46,7 +46,6 @@ public static class DependencyInjection
         // DI
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAdRepository, AdRepository>();
         services.AddScoped<ITextAnalysisService, TextAnalysisService>();
         services.AddScoped<IAdAnalysisService, AdAnalysisService>();
