@@ -115,69 +115,45 @@ public class AdService : IAdService
     {
         var currentUserId = await _userContext.GetCurrentUserIdAsync();
         
-        var existing = await _adRepository.GetAdAsync(adId);
+        var existing = await _unitOfWork.Ads.GetByIdAsync(adId);
+        if (existing == null) { throw new AdNotFoundException("Ad not found."); }
+        if (existing.UserId != currentUserId) { throw new UnauthorizedAccessException($"Not authorized to edit ad with id: {adId}"); }
         
-        if (existing == null)
+        existing.Description = string.IsNullOrWhiteSpace(ad.Description) ? existing.Description : ad.Description.Trim();
+        existing.Location = string.IsNullOrWhiteSpace(ad.Location) ? existing.Location : ad.Location.Trim();
+        existing.BrandModel = string.IsNullOrWhiteSpace(ad.BrandModel) ? existing.BrandModel : ad.BrandModel.Trim();
+        existing.Motor = string.IsNullOrWhiteSpace(ad.Motor) ? existing.Motor : ad.Motor.Trim();
+        existing.PhoneNumber = string.IsNullOrWhiteSpace(ad.PhoneNumber) ? existing.PhoneNumber : ad.PhoneNumber.Trim();
+        existing.UserName = string.IsNullOrWhiteSpace(ad.UserName) ? existing.UserName : ad.UserName.Trim();
+        existing.Price = ad.Price > 0 ? ad.Price : throw new InvalidDataException("Price must be greater than zero.");
+        existing.Email = ad.Email == null ? existing.Email : ad.Email?.Trim();
+        
+        _unitOfWork.Ads.Update(existing);
+        
+        var result = await _unitOfWork.CommitAsync();
+
+        if (result <= 0) throw new AdEditFailedException("Failed to edit ad.");
+        
+        var createdAd = new AdDto()
         {
-            throw new AdNotFoundException("Ad not found.");
-        }
-        
-        if (existing.UserId != currentUserId)
-        {
-            throw new UnauthorizedAccessException($"Not authorized to edit ad with id: {adId}");
-        }
-        
-        if (!string.IsNullOrWhiteSpace(ad.Description))
-            existing.Description = ad.Description.Trim();
-
-        if (!string.IsNullOrWhiteSpace(ad.Location))
-            existing.Location = ad.Location.Trim();
-        
-        if (!string.IsNullOrWhiteSpace(ad.BrandModel))
-            existing.BrandModel = ad.BrandModel.Trim();
-        
-        if (!string.IsNullOrWhiteSpace(ad.Motor))
-            existing.Motor = ad.Motor.Trim();
-
-        if (!string.IsNullOrWhiteSpace(ad.PhoneNumber))
-            existing.PhoneNumber = ad.PhoneNumber.Trim();
-
-        if (!string.IsNullOrWhiteSpace(ad.UserName))
-            existing.UserName = ad.UserName.Trim();
-
-        if (ad.Price > 1)
-            existing.Price = ad.Price;
-
-        if (ad.Email != null)
-            existing.Email = ad.Email.Trim();
-        
-        var result = await _adRepository.UpdateAdAsync(adId, ad);
-
-        if (result > 0)
-        {
-            var createdAd = new AdDto()
-            {
-                Id = adId,
-                UserId = existing.UserId,
-                UserName = existing.UserName.Trim(),
-                BrandModel = existing.BrandModel.Trim(),
-                Motor = existing.Motor.Trim(),
-                PhoneNumber = existing.PhoneNumber.Trim(),
-                Email = existing.Email?.Trim(),
-                Description = existing.Description.Trim(),
-                Location = existing.Location.Trim(),
-                Price = existing.Price,
-                Currency = _currencySettings.CurrencySymbol,
-                IsReupload = existing.IsReupload,
-                ReuploadReason = existing.ReuploadReason
-            };
+            Id = adId,
+            UserId = existing.UserId,
+            UserName = existing.UserName,
+            BrandModel = existing.BrandModel,
+            Motor = existing.Motor,
+            PhoneNumber = existing.PhoneNumber,
+            Email = existing.Email,
+            Description = existing.Description,
+            Location = existing.Location,
+            Price = existing.Price,
+            Currency = _currencySettings.CurrencySymbol,
+            IsReupload = existing.IsReupload,
+            ReuploadReason = existing.ReuploadReason
+        };
             
-            _backgroundJobService.EnqueueAdAnalysisAsync(createdAd);
+        _backgroundJobService.EnqueueAdAnalysisAsync(createdAd);
             
-            return createdAd;
-        }
-        
-        throw new AdEditFailedException("Failed to edit ad.");
+        return createdAd;
     }
 
     public async Task DeleteAdAsync(Guid adId)
