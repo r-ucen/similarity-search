@@ -1,5 +1,4 @@
 using SimilaritySearch.Application.Abstractions;
-using SimilaritySearch.Application.Abstractions.Repositories;
 using SimilaritySearch.Application.DTOs;
 using SimilaritySearch.Application.Exceptions.Ad;
 using SimilaritySearch.Domain;
@@ -11,15 +10,13 @@ public class AdService : IAdService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
-    private readonly IAdRepository _adRepository;
     private readonly CurrencySettings _currencySettings;
     private readonly IBackgroundJobService _backgroundJobService;
     
-    public AdService(IUnitOfWork unitOfWork, IUserContext userContext, IAdRepository adRepository, CurrencySettings currencySettings, IBackgroundJobService backgroundJobService)
+    public AdService(IUnitOfWork unitOfWork, IUserContext userContext, CurrencySettings currencySettings, IBackgroundJobService backgroundJobService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
-        _adRepository = adRepository;
         _currencySettings = currencySettings;
         _backgroundJobService = backgroundJobService;
     }
@@ -160,21 +157,13 @@ public class AdService : IAdService
     {
         var currentUserId = await _userContext.GetCurrentUserIdAsync();
         
-        var existing = await _adRepository.GetAdAsync(adId);
-        if (existing == null)
-        {
-            throw new AdNotFoundException("Ad not found.");
-        }
-
-        if (existing.UserId != currentUserId)
-        {
-            throw new UnauthorizedAccessException($"Not authorized to delete ad with id: {adId}");
-        }
+        var existing = await _unitOfWork.Ads.GetByIdAsync(adId);
+        if (existing == null) { throw new AdNotFoundException("Ad not found."); }
+        if (existing.UserId != currentUserId) { throw new UnauthorizedAccessException($"Not authorized to delete ad with id: {adId}"); }
         
-        var result = await _adRepository.DeleteAdAsync(adId);
-        if (result <= 0)
-        {
-            throw new AdDeleteFailedException("Failed to delete ad.");
-        }
+        _unitOfWork.Ads.Remove(existing);
+        
+        var result = await _unitOfWork.CommitAsync();
+        if (result <= 0) { throw new AdDeleteFailedException("Failed to delete ad."); }
     }
 }
