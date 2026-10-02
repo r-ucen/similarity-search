@@ -92,11 +92,23 @@ public class AdService : IAdService
 
     public async Task<AdDto> GetAdAsync(Guid id)
     {
-        var currentUserId = await _userContext.GetCurrentUserIdAsync();
-        
-        var ad = await _adRepository.GetAdAsync(id);
-
-        return ad ?? throw new AdNotFoundException("Ad not found.");
+        var ad = await _unitOfWork.Ads.GetByIdAsync(id) ?? throw new AdNotFoundException("Ad not found.");
+        return new AdDto()
+        {
+            Id = ad.Id,
+            UserId = ad.UserId,
+            UserName = ad.UserName,
+            BrandModel = ad.BrandModel,
+            Motor = ad.Motor,
+            PhoneNumber = ad.PhoneNumber,
+            Email = ad.Email,
+            Description = ad.Description,
+            Currency = ad.Currency,
+            Location = ad.Location,
+            Price = ad.Price,
+            IsReupload = ad.IsReupload,
+            ReuploadReason = ad.ReuploadReason
+        };
     }
 
     public async Task<AdDto> EditAdAsync(Guid adId, EditAdCommand ad)
