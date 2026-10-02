@@ -13,7 +13,5 @@ public interface IAdRepository : IRepository<Ad>
     public Task<Tuple<Ad, double>?> GetMostSimilarAdAsync(Guid adId, CancellationToken ct);
     public Task SetReadyToBePresentedAsync(Guid adId, bool readyToBePresented);
     Task<AdDto?> GetAdAsync(Guid id);
-    Task<int> CreateAdAsync(Ad ad);
-    Task<int> UpdateAdAsync(Guid adId, EditAdCommand updatedAd);
     Task<int> DeleteAdAsync(Guid id);
 }

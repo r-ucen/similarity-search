@@ -126,34 +126,6 @@ public class AdRepository : Repository<Ad>, IAdRepository
             .FirstOrDefaultAsync();
     }
     
-    public async Task<int> CreateAdAsync(Ad ad)
-    {
-        DbSet.Add(ad);
-        return await _context.SaveChangesAsync();
-    }
-    
-    public async Task<int> UpdateAdAsync(Guid adId, EditAdCommand updatedAd)
-    {
-        var existingAd = await DbSet.FirstOrDefaultAsync(a => a.Id == adId);
-
-        if (existingAd == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {existingAd} was not found");
-        }
-        
-        existingAd.UserName = updatedAd.UserName;
-        existingAd.BrandModel = updatedAd.BrandModel;
-        existingAd.Motor = updatedAd.Motor;
-        existingAd.PhoneNumber = updatedAd.PhoneNumber;
-        existingAd.Email = updatedAd.Email;
-        existingAd.Description = updatedAd.Description;
-        existingAd.Location = updatedAd.Location;
-        existingAd.Price = updatedAd.Price;
-        existingAd.Description = updatedAd.Description;
-        
-        return await _context.SaveChangesAsync();
-    }
-    
     public async Task<int> DeleteAdAsync(Guid id)
     {
         var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == id);
