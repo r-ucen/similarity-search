@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Pgvector;
 using Pgvector.EntityFrameworkCore;
 using SimilaritySearch.Application.Abstractions.Repositories;
 using SimilaritySearch.Application.DTOs;
@@ -15,19 +14,6 @@ public class AdRepository : Repository<Ad>, IAdRepository
     public AdRepository(ApplicationDbContext context) : base(context)
     {
         _context = context;
-    }
-
-    public async Task SetEmbeddingAsync(Guid adId, Vector embedding)
-    {
-        var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == adId);
-
-        if (ad == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {adId} was not found");
-        }
-
-        ad.DescriptionEmbedding = embedding;
-        await _context.SaveChangesAsync();
     }
 
     public async Task SetReuploadAsync(Guid adId, bool reupload)
@@ -124,18 +110,5 @@ public class AdRepository : Repository<Ad>, IAdRepository
                 ReuploadReason = a.ReuploadReason
             })
             .FirstOrDefaultAsync();
-    }
-    
-    public async Task<int> DeleteAdAsync(Guid id)
-    {
-        var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == id);
-
-        if (ad == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {id} was not found");
-        }
-        
-        ad.IsDeleted = true;
-        return await _context.SaveChangesAsync();
     }
 }
