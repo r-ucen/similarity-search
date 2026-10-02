@@ -1,15 +1,14 @@
-using Microsoft.AspNetCore.Identity;
 using SimilaritySearch.Application.Abstractions;
 using SimilaritySearch.Application.Abstractions.Repositories;
-using SimilaritySearch.Infrastructure.Database;
-using SimilaritySearch.Infrastructure.Identity;
 using SimilaritySearch.Infrastructure.Repositories;
+
+namespace SimilaritySearch.Infrastructure.Database;
 
 public class UnitOfWork: IUnitOfWork
 {
     private readonly ApplicationDbContext _context;
 
-    private IAdRepository _ads;
+    private IAdRepository? _ads;
 
     public UnitOfWork(ApplicationDbContext context)
     {
