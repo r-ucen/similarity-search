@@ -1,6 +1,5 @@
 using Hangfire.PostgreSql;
 using Hangfire;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -51,6 +50,8 @@ public static class DependencyInjection
         services.AddScoped<IAdAnalysisService, AdAnalysisService>();
         services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
         services.AddScoped<ILevenshteinService, LevenshteinService>();
+        services.AddScoped<IAdService, AdService>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         
         services.AddSingleton<YahooQuotes>(new YahooQuotesBuilder().Build());
         
