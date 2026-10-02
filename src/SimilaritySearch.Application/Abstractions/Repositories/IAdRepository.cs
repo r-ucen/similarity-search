@@ -4,7 +4,7 @@ using SimilaritySearch.Domain.Entities;
 
 namespace SimilaritySearch.Application.Abstractions.Repositories;
 
-public interface IAdRepository
+public interface IAdRepository : IRepository<Ad>
 {
     Task<IEnumerable<AdDto>?> GetAllAdsAsync();
     public Task SetEmbeddingAsync(Guid adId, Vector embedding);
