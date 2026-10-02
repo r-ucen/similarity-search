@@ -1,19 +1,19 @@
-using SimilaritySearch.Application.Abstractions.Repositories;
+using SimilaritySearch.Application.Abstractions;
 using SimilaritySearch.Application.DTOs;
 
 namespace SimilaritySearch.Application.UseCases.UserUseCases.Handlers;
 
 public class GetAllUsersHandler
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IIdentityService _identityService;
 
-    public GetAllUsersHandler(IUserRepository userRepository)
+    public GetAllUsersHandler(IIdentityService identityService)
     {
-        _userRepository = userRepository;
+        _identityService = identityService;
     }
     
     public async Task<List<UserDto>> HandleAsync()
     {
-        return await _userRepository.GetAllAsync();
+        return await _identityService.GetAllAsync();
     }
 }

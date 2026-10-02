@@ -1,19 +1,20 @@
 using SimilaritySearch.Application.Abstractions;
-using SimilaritySearch.Application.Abstractions.Repositories;
 using SimilaritySearch.Application.DTOs;
+using SimilaritySearch.Application.Exceptions;
+using SimilaritySearch.Application.Exceptions.Ad;
 
 namespace SimilaritySearch.Application.Services;
 
 public class AdAnalysisService : IAdAnalysisService
 {
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ITextAnalysisService _textAnalysisService;
-    private readonly IAdRepository _adRepository;
     private readonly ILevenshteinService _levenshteinService;
     
-    public AdAnalysisService(ITextAnalysisService textAnalysisService, IAdRepository adRepository, ILevenshteinService levenshteinService)
+    public AdAnalysisService(IUnitOfWork unitOfWork, ITextAnalysisService textAnalysisService, ILevenshteinService levenshteinService)
     {
+        _unitOfWork = unitOfWork;
         _textAnalysisService = textAnalysisService;
-        _adRepository = adRepository;
         _levenshteinService = levenshteinService;
     }
     
@@ -29,13 +30,13 @@ public class AdAnalysisService : IAdAnalysisService
     public async Task AnalyseAdAsync(AdDto ad, CancellationToken ct)
     {
         await CreateEmbedding(ad, ct);
-        var mostSimilarAd = await _adRepository.GetMostSimilarAdAsync(ad.Id, ct);
+        var mostSimilarAd = await _unitOfWork.Ads.GetMostSimilarAdAsync(ad.Id, ct);
 
         if (mostSimilarAd == null)
         {
-            await _adRepository.SetReuploadAsync(ad.Id, false);
-            await _adRepository.SetReuploadReasonAsync(ad.Id, "Nebyl nalezen žádný podobný inzerát k porovnání.");
-            await _adRepository.SetReadyToBePresentedAsync(ad.Id, true);
+            await _unitOfWork.Ads.SetReuploadAsync(ad.Id, false);
+            await _unitOfWork.Ads.SetReuploadReasonAsync(ad.Id, "Nebyl nalezen žádný podobný inzerát k porovnání.");
+            await _unitOfWork.Ads.SetReadyToBePresentedAsync(ad.Id, true);
             return;
         }
         
@@ -52,32 +53,50 @@ public class AdAnalysisService : IAdAnalysisService
             if (brandModelDistance >= 2 || motorDistance >= 2)
             {
                 isReupload = false;
-                await _adRepository.SetReuploadReasonAsync(ad.Id, "Inzerát je unikátní (Rozdíl v modelu či typu motoru)");
+                await _unitOfWork.Ads.SetReuploadReasonAsync(ad.Id, "Inzerát je unikátní (Rozdíl v modelu či typu motoru)");
             }
             else
             {
-                var mostSimilarAdDto = await _adRepository.GetAdAsync(mostSimilarAd.Item1.Id);
+                var mostSimilarAdDto = await _unitOfWork.Ads.GetAdAsync(mostSimilarAd.Item1.Id);
                 await CreateAiReason(ad, mostSimilarAdDto, ct);
             }
         }
         else
         {
-            await _adRepository.SetReuploadReasonAsync(ad.Id, "Inzerát je unikátní");
+            await _unitOfWork.Ads.SetReuploadReasonAsync(ad.Id, "Inzerát je unikátní");
         }
         
-        await _adRepository.SetReuploadAsync(ad.Id, isReupload);
-        await _adRepository.SetReadyToBePresentedAsync(ad.Id, true);
+        await _unitOfWork.Ads.SetReuploadAsync(ad.Id, isReupload);
+        await _unitOfWork.Ads.SetReadyToBePresentedAsync(ad.Id, true);
     }
     
     public async Task CreateEmbedding(AdDto ad, CancellationToken ct)
     {
+        var existing = await _unitOfWork.Ads.GetByIdAsync(ad.Id, ct);
+        if (existing == null) { throw new AdNotFoundException($"Ad with id: {ad.Id} was not found"); }
+        
         var embedding = await _textAnalysisService.GenerateTextEmbeddingAsync(ad.Description, ct);
-        await _adRepository.SetEmbeddingAsync(ad.Id, embedding);
+
+        existing.DescriptionEmbedding = embedding;
+        
+        _unitOfWork.Ads.Update(existing);
+        
+        var result = await _unitOfWork.CommitAsync(ct);
+        if (result <= 0) { throw new FailedToSetEmbeddingException("Failed to set embedding"); }
     }
 
     public async Task CreateAiReason(AdDto newAd, AdDto? oldAd, CancellationToken ct)
     {
+        var existing = await _unitOfWork.Ads.GetByIdAsync(newAd.Id, ct);
+        if (existing == null) { throw new AdNotFoundException($"Ad with id: {newAd.Id} was not found"); }
+        
         var reason = await _textAnalysisService.AnalyzeDuplicateAsync(newAd, oldAd, ct);
-        await _adRepository.SetReuploadReasonAsync(newAd.Id, reason);
+        
+        existing.ReuploadReason = reason;
+        
+        _unitOfWork.Ads.Update(existing);
+        
+        var result = await _unitOfWork.CommitAsync(ct);
+        if (result <= 0) { throw new FailedToSetReuploadReasonException("Failed to set reupload reason"); }
     }
 }

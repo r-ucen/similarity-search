@@ -1,6 +1,5 @@
 using Hangfire.PostgreSql;
 using Hangfire;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -44,13 +43,15 @@ public static class DependencyInjection
         services.AddTransient<IEmailSender<ApplicationUser>, ResendEmailSender>();
         
         // DI
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAdRepository, AdRepository>();
         services.AddScoped<ITextAnalysisService, TextAnalysisService>();
         services.AddScoped<IAdAnalysisService, AdAnalysisService>();
         services.AddScoped<IBackgroundJobService, HangfireBackgroundJobService>();
         services.AddScoped<ILevenshteinService, LevenshteinService>();
+        services.AddScoped<IAdService, AdService>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         
         services.AddSingleton<YahooQuotes>(new YahooQuotesBuilder().Build());
         

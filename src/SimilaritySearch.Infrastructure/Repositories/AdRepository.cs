@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Pgvector;
 using Pgvector.EntityFrameworkCore;
 using SimilaritySearch.Application.Abstractions.Repositories;
 using SimilaritySearch.Application.DTOs;
@@ -8,63 +7,46 @@ using SimilaritySearch.Infrastructure.Database;
 
 namespace SimilaritySearch.Infrastructure.Repositories;
 
-public class AdRepository : IAdRepository
+public class AdRepository : Repository<Ad>, IAdRepository
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly ApplicationDbContext _context;
     
-    public AdRepository(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public AdRepository(ApplicationDbContext context) : base(context)
     {
-        _contextFactory = contextFactory;
-    }
-
-    public async Task SetEmbeddingAsync(Guid adId, Vector embedding)
-    {
-        await using var context = await _contextFactory.CreateDbContextAsync();
-        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId);
-
-        if (ad == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {adId} was not found");
-        }
-
-        ad.DescriptionEmbedding = embedding;
-        await context.SaveChangesAsync();
+        _context = context;
     }
 
     public async Task SetReuploadAsync(Guid adId, bool reupload)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
-        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId);
+        var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == adId);
         if (ad == null)
         {
             throw new InvalidOperationException($"Ad with id: {adId} was not found");
         }
         ad.IsReupload = reupload;
-        await context.SaveChangesAsync(); 
+        await _context.SaveChangesAsync(); 
     }
 
     public async Task SetReuploadReasonAsync(Guid adId, string reason)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
-        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId);
+        var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == adId);
         if (ad == null)
         {
             throw new InvalidOperationException($"Ad with id: {adId} was not found");
         }
         ad.ReuploadReason = reason;
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 
     public async Task<Tuple<Ad, double>?> GetMostSimilarAdAsync(Guid adId, CancellationToken ct)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync(ct);
-        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId, cancellationToken: ct);
+        var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == adId, cancellationToken: ct);
         if (ad == null)
         {
             throw new InvalidOperationException($"Ad with id: {adId} was not found");
         }
 
-        return await context.Ads
+        return await DbSet
             .Where(x => x.Id != ad.Id)
             .OrderBy(x => x.DescriptionEmbedding!.CosineDistance(ad.DescriptionEmbedding!))
             .Select(x => new Tuple<Ad, double>(x, x.DescriptionEmbedding!.CosineDistance(ad.DescriptionEmbedding!)))
@@ -73,20 +55,18 @@ public class AdRepository : IAdRepository
 
     public async Task SetReadyToBePresentedAsync(Guid adId, bool readyToBePresented)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
-        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId);
+        var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == adId);
         if (ad == null)
         {
             throw new InvalidOperationException($"Ad with id: {adId} was not found");
         }
         ad.ReadyToBePresented =  readyToBePresented;
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
     
     public async Task<IEnumerable<AdDto>?> GetAllAdsAsync()
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
-        return await context.Ads
+        return await DbSet
             .AsNoTracking()
             .Where(a => !a.IsDeleted && a.ReadyToBePresented)
             .Select(a => new AdDto
@@ -110,8 +90,7 @@ public class AdRepository : IAdRepository
     
     public async Task<AdDto?> GetAdAsync(Guid id)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync();
-        return await context.Ads
+        return await DbSet
             .AsNoTracking()
             .Where(a => a.Id == id && !a.IsDeleted && a.ReadyToBePresented)
             .Select(a => new AdDto
@@ -131,49 +110,5 @@ public class AdRepository : IAdRepository
                 ReuploadReason = a.ReuploadReason
             })
             .FirstOrDefaultAsync();
-    }
-    
-    public async Task<int> CreateAdAsync(Ad ad)
-    {
-        await using var context = await _contextFactory.CreateDbContextAsync();
-        context.Ads.Add(ad);
-        return await context.SaveChangesAsync();
-    }
-    
-    public async Task<int> UpdateAdAsync(Guid adId, EditAdCommand updatedAd)
-    {
-        await using var context = await _contextFactory.CreateDbContextAsync();
-        var existingAd = await context.Ads.FirstOrDefaultAsync(a => a.Id == adId);
-
-        if (existingAd == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {existingAd} was not found");
-        }
-        
-        existingAd.UserName = updatedAd.UserName;
-        existingAd.BrandModel = updatedAd.BrandModel;
-        existingAd.Motor = updatedAd.Motor;
-        existingAd.PhoneNumber = updatedAd.PhoneNumber;
-        existingAd.Email = updatedAd.Email;
-        existingAd.Description = updatedAd.Description;
-        existingAd.Location = updatedAd.Location;
-        existingAd.Price = updatedAd.Price;
-        existingAd.Description = updatedAd.Description;
-        
-        return await context.SaveChangesAsync();
-    }
-    
-    public async Task<int> DeleteAdAsync(Guid id)
-    {
-        await using var context = await _contextFactory.CreateDbContextAsync();
-        var ad = await context.Ads.FirstOrDefaultAsync(a => a.Id == id);
-
-        if (ad == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {id} was not found");
-        }
-        
-        ad.IsDeleted = true;
-        return await context.SaveChangesAsync();
     }
 }
