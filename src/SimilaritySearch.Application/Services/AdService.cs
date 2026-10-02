@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using SimilaritySearch.Application.Abstractions;
 using SimilaritySearch.Application.Abstractions.Repositories;
 using SimilaritySearch.Application.DTOs;
@@ -11,13 +9,15 @@ namespace SimilaritySearch.Application.Services;
 
 public class AdService : IAdService
 {
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IAdRepository _adRepository;
     private readonly CurrencySettings _currencySettings;
     private readonly IBackgroundJobService _backgroundJobService;
     
-    public AdService(IUserContext userContext, IAdRepository adRepository, CurrencySettings currencySettings, IBackgroundJobService backgroundJobService)
+    public AdService(IUnitOfWork unitOfWork, IUserContext userContext, IAdRepository adRepository, CurrencySettings currencySettings, IBackgroundJobService backgroundJobService)
     {
+        _unitOfWork = unitOfWork;
         _userContext = userContext;
         _adRepository = adRepository;
         _currencySettings = currencySettings;
@@ -26,7 +26,7 @@ public class AdService : IAdService
     
     public async Task<IEnumerable<AdDto>> GetAllAdsAsync()
     {
-        return await _adRepository.GetAllAdsAsync() ?? new List<AdDto>();
+        return await _unitOfWork.Ads.GetAllAdsAsync() ?? new List<AdDto>();
     }
 
     public async Task<AdDto> CreateAdAsync(CreateAdCommand ad)
@@ -39,10 +39,7 @@ public class AdService : IAdService
                            string.IsNullOrWhiteSpace(ad.PhoneNumber) ||
                            string.IsNullOrWhiteSpace(ad.UserName);
         
-        if (missingInfo)
-        {
-            throw new DataMissingException("Some info is missing");
-        }
+        if (missingInfo) { throw new DataMissingException("Some info is missing"); }
         
         var userId = await _userContext.GetCurrentUserIdAsync();
 
@@ -65,12 +62,7 @@ public class AdService : IAdService
             CreatedAt = DateTime.UtcNow
         };
         
-        var result = await _adRepository.CreateAdAsync(entity);
-        
-        if (result <= 0)
-        {
-            throw new AdCreationFailedException("Failed to create ad.");
-        }
+        await _unitOfWork.Ads.AddAsync(entity);
 
         var createdAd = new AdDto()
         {
@@ -89,6 +81,9 @@ public class AdService : IAdService
             ReuploadReason = entity.ReuploadReason,
             CreatedAt = entity.CreatedAt
         };
+        
+        var result = await _unitOfWork.CommitAsync();
+        if (result <= 0) { throw new AdCreationFailedException("Failed to create ad."); }
         
         _backgroundJobService.EnqueueAdAnalysisAsync(createdAd);
 
