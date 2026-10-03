@@ -28,4 +28,36 @@ public class Ad : Entity<Guid>
     
     public bool IsDeleted { get; set; } = false;
     public bool ReadyToBePresented { get; set; } = false;
+
+    public static Ad Create(
+        string userName,
+        string brandModel,
+        string motor,
+        string phoneNumber,
+        string? email,
+        string description,
+        string location,
+        decimal price,
+        string userId,
+        CurrencySettings currencySettings)
+    {
+        return new Ad
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            UserName = userName.Trim(),
+            BrandModel = brandModel.Trim(),
+            Motor = motor.Trim(),
+            PhoneNumber = phoneNumber.Trim(),
+            Email = email?.Trim(),
+            Description = description.Trim(),
+            Location = location.Trim(),
+            Price = price,
+            Currency = currencySettings.CurrencySymbol,
+            IsReupload = false,
+            ReuploadReason = null,
+            IsDeleted = false,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
 }
