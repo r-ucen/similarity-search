@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Pgvector.EntityFrameworkCore;
 using SimilaritySearch.Application.Abstractions.Repositories;
 using SimilaritySearch.Application.DTOs;
+using SimilaritySearch.Application.Extensions.Ad;
 using SimilaritySearch.Domain.Entities;
 using SimilaritySearch.Infrastructure.Database;
 
@@ -69,22 +70,7 @@ public class AdRepository : Repository<Ad>, IAdRepository
         return await DbSet
             .AsNoTracking()
             .Where(a => !a.IsDeleted && a.ReadyToBePresented)
-            .Select(a => new AdDto
-            {
-                Id = a.Id,
-                UserId = a.UserId,
-                UserName = a.UserName,
-                BrandModel = a.BrandModel,
-                Motor = a.Motor,
-                PhoneNumber = a.PhoneNumber,
-                Email = a.Email,
-                Description = a.Description,
-                Currency = a.Currency,
-                Location = a.Location,
-                Price = a.Price,
-                IsReupload = a.IsReupload,
-                ReuploadReason = a.ReuploadReason
-            })
+            .Select(a => a.DtoFromEntity())
             .ToListAsync();
     }
     
@@ -93,22 +79,7 @@ public class AdRepository : Repository<Ad>, IAdRepository
         return await DbSet
             .AsNoTracking()
             .Where(a => a.Id == id && !a.IsDeleted && a.ReadyToBePresented)
-            .Select(a => new AdDto
-            {
-                Id = a.Id,
-                UserId = a.UserId,
-                UserName = a.UserName,
-                BrandModel = a.BrandModel,
-                Motor = a.Motor,
-                PhoneNumber = a.PhoneNumber,
-                Email = a.Email,
-                Description = a.Description,
-                Currency = a.Currency,
-                Location = a.Location,
-                Price = a.Price,
-                IsReupload = a.IsReupload,
-                ReuploadReason = a.ReuploadReason
-            })
+            .Select(a => a.DtoFromEntity())
             .FirstOrDefaultAsync();
     }
 }
