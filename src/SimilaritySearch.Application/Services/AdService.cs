@@ -1,6 +1,7 @@
 using SimilaritySearch.Application.Abstractions;
 using SimilaritySearch.Application.DTOs;
 using SimilaritySearch.Application.Exceptions.Ad;
+using SimilaritySearch.Application.Extensions.Ad;
 using SimilaritySearch.Domain;
 using SimilaritySearch.Domain.Entities;
 
@@ -40,44 +41,12 @@ public class AdService : IAdService
         
         var userId = await _userContext.GetCurrentUserIdAsync();
 
-        var entity = new Ad
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            UserName = ad.UserName.Trim(),
-            BrandModel = ad.BrandModel.Trim(),
-            Motor = ad.Motor.Trim(),
-            PhoneNumber = ad.PhoneNumber.Trim(),
-            Email = ad.Email?.Trim(),
-            Description = ad.Description.Trim(),
-            Location = ad.Location.Trim(),
-            Price = ad.Price,
-            Currency = _currencySettings.CurrencySymbol,
-            IsReupload = false,
-            ReuploadReason = null,
-            IsDeleted = false,
-            CreatedAt = DateTime.UtcNow
-        };
+        var entity = Ad.Create(ad.UserName, ad.BrandModel, ad.Motor, ad.PhoneNumber,
+            ad.Email, ad.Description, ad.Location, ad.Price, userId, _currencySettings);
         
         await _unitOfWork.Ads.AddAsync(entity);
 
-        var createdAd = new AdDto()
-        {
-            Id = entity.Id,
-            UserId = entity.UserId,
-            UserName = entity.UserName,
-            BrandModel = entity.BrandModel,
-            Motor = entity.Motor,
-            PhoneNumber = entity.PhoneNumber,
-            Email = entity.Email,
-            Description = entity.Description,
-            Location = entity.Location,
-            Price = entity.Price,
-            Currency = _currencySettings.CurrencySymbol,
-            IsReupload = entity.IsReupload,
-            ReuploadReason = entity.ReuploadReason,
-            CreatedAt = entity.CreatedAt
-        };
+        var createdAd = entity.DtoFromEntity();
         
         var result = await _unitOfWork.CommitAsync();
         if (result <= 0) { throw new AdCreationFailedException("Failed to create ad."); }
@@ -90,22 +59,7 @@ public class AdService : IAdService
     public async Task<AdDto> GetAdAsync(Guid id)
     {
         var ad = await _unitOfWork.Ads.GetByIdAsync(id) ?? throw new AdNotFoundException("Ad not found.");
-        return new AdDto()
-        {
-            Id = ad.Id,
-            UserId = ad.UserId,
-            UserName = ad.UserName,
-            BrandModel = ad.BrandModel,
-            Motor = ad.Motor,
-            PhoneNumber = ad.PhoneNumber,
-            Email = ad.Email,
-            Description = ad.Description,
-            Currency = ad.Currency,
-            Location = ad.Location,
-            Price = ad.Price,
-            IsReupload = ad.IsReupload,
-            ReuploadReason = ad.ReuploadReason
-        };
+        return ad.DtoFromEntity();
     }
 
     public async Task<AdDto> EditAdAsync(Guid adId, EditAdCommand ad)
@@ -131,22 +85,7 @@ public class AdService : IAdService
 
         if (result <= 0) throw new AdEditFailedException("Failed to edit ad.");
         
-        var createdAd = new AdDto()
-        {
-            Id = adId,
-            UserId = existing.UserId,
-            UserName = existing.UserName,
-            BrandModel = existing.BrandModel,
-            Motor = existing.Motor,
-            PhoneNumber = existing.PhoneNumber,
-            Email = existing.Email,
-            Description = existing.Description,
-            Location = existing.Location,
-            Price = existing.Price,
-            Currency = _currencySettings.CurrencySymbol,
-            IsReupload = existing.IsReupload,
-            ReuploadReason = existing.ReuploadReason
-        };
+        var createdAd = existing.DtoFromEntity();
             
         _backgroundJobService.EnqueueAdAnalysisAsync(createdAd);
             
