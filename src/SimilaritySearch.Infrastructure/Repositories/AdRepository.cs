@@ -42,13 +42,11 @@ public class AdRepository : Repository<Ad>, IAdRepository
     public async Task<Tuple<Ad, double>?> GetMostSimilarAdAsync(Guid adId, CancellationToken ct)
     {
         var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == adId, cancellationToken: ct);
-        if (ad == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {adId} was not found");
-        }
+        if (ad == null) { throw new InvalidOperationException($"Ad with id: {adId} was not found"); }
+        if (ad.DescriptionEmbedding == null) { return null; }
 
         return await DbSet
-            .Where(x => x.Id != ad.Id)
+            .Where(x => x.Id != ad.Id && x.DescriptionEmbedding != null)
             .OrderBy(x => x.DescriptionEmbedding!.CosineDistance(ad.DescriptionEmbedding!))
             .Select(x => new Tuple<Ad, double>(x, x.DescriptionEmbedding!.CosineDistance(ad.DescriptionEmbedding!)))
             .FirstOrDefaultAsync(cancellationToken: ct);
