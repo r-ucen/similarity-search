@@ -10,34 +10,7 @@ namespace SimilaritySearch.Infrastructure.Repositories;
 
 public class AdRepository : Repository<Ad>, IAdRepository
 {
-    private readonly ApplicationDbContext _context;
-    
-    public AdRepository(ApplicationDbContext context) : base(context)
-    {
-        _context = context;
-    }
-
-    public async Task SetReuploadAsync(Guid adId, bool reupload)
-    {
-        var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == adId);
-        if (ad == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {adId} was not found");
-        }
-        ad.IsReupload = reupload;
-        await _context.SaveChangesAsync(); 
-    }
-
-    public async Task SetReuploadReasonAsync(Guid adId, string reason)
-    {
-        var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == adId);
-        if (ad == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {adId} was not found");
-        }
-        ad.ReuploadReason = reason;
-        await _context.SaveChangesAsync();
-    }
+    public AdRepository(ApplicationDbContext context) : base(context) { }
 
     public async Task<Tuple<Ad, double>?> GetMostSimilarAdAsync(Guid adId, CancellationToken ct)
     {
@@ -50,17 +23,6 @@ public class AdRepository : Repository<Ad>, IAdRepository
             .OrderBy(x => x.DescriptionEmbedding!.CosineDistance(ad.DescriptionEmbedding!))
             .Select(x => new Tuple<Ad, double>(x, x.DescriptionEmbedding!.CosineDistance(ad.DescriptionEmbedding!)))
             .FirstOrDefaultAsync(cancellationToken: ct);
-    }
-
-    public async Task SetReadyToBePresentedAsync(Guid adId, bool readyToBePresented)
-    {
-        var ad = await DbSet.FirstOrDefaultAsync(a => a.Id == adId);
-        if (ad == null)
-        {
-            throw new InvalidOperationException($"Ad with id: {adId} was not found");
-        }
-        ad.ReadyToBePresented =  readyToBePresented;
-        await _context.SaveChangesAsync();
     }
     
     public async Task<IEnumerable<AdDto>?> GetAllAdsAsync()
