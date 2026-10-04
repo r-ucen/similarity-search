@@ -1,6 +1,5 @@
 using SimilaritySearch.Application.Abstractions;
 using SimilaritySearch.Application.DTOs;
-using SimilaritySearch.Application.Exceptions;
 using SimilaritySearch.Application.Exceptions.Ad;
 
 namespace SimilaritySearch.Application.Services;
@@ -29,14 +28,21 @@ public class AdAnalysisService : IAdAnalysisService
 
     public async Task AnalyseAdAsync(AdDto ad, CancellationToken ct)
     {
-        await CreateEmbedding(ad, ct);
+        var originalAd = await _unitOfWork.Ads.GetByIdAsync(ad.Id, ct);
+        if (originalAd == null) { throw new AdNotFoundException($"Ad with id: {ad.Id} was not found"); }
+        
+        var embedding = await _textAnalysisService.GenerateTextEmbeddingAsync(ad.Description, ct);
+        originalAd.DescriptionEmbedding = embedding;
+
         var mostSimilarAd = await _unitOfWork.Ads.GetMostSimilarAdAsync(ad.Id, ct);
 
         if (mostSimilarAd == null)
         {
-            await _unitOfWork.Ads.SetReuploadAsync(ad.Id, false);
-            await _unitOfWork.Ads.SetReuploadReasonAsync(ad.Id, "Nebyl nalezen žádný podobný inzerát k porovnání.");
-            await _unitOfWork.Ads.SetReadyToBePresentedAsync(ad.Id, true);
+            originalAd.IsReupload = false;
+            originalAd.ReuploadReason = "Nebyl nalezen žádný podobný inzerát k porovnání.";
+            originalAd.ReadyToBePresented = true;
+
+            await _unitOfWork.CommitAsync(ct);
             return;
         }
         
@@ -53,50 +59,24 @@ public class AdAnalysisService : IAdAnalysisService
             if (brandModelDistance >= 2 || motorDistance >= 2)
             {
                 isReupload = false;
-                await _unitOfWork.Ads.SetReuploadReasonAsync(ad.Id, "Inzerát je unikátní (Rozdíl v modelu či typu motoru)");
+                originalAd.ReuploadReason = "Inzerát je unikátní (Rozdíl v modelu či typu motoru)";
             }
             else
             {
                 var mostSimilarAdDto = await _unitOfWork.Ads.GetAdAsync(mostSimilarAd.Item1.Id);
-                await CreateAiReason(ad, mostSimilarAdDto, ct);
+                
+                var reason = await _textAnalysisService.AnalyzeDuplicateAsync(ad, mostSimilarAdDto, ct);
+                originalAd.ReuploadReason = reason;
             }
         }
         else
         {
-            await _unitOfWork.Ads.SetReuploadReasonAsync(ad.Id, "Inzerát je unikátní");
+            originalAd.ReuploadReason = "Inzerát je unikátní";
         }
         
-        await _unitOfWork.Ads.SetReuploadAsync(ad.Id, isReupload);
-        await _unitOfWork.Ads.SetReadyToBePresentedAsync(ad.Id, true);
-    }
-    
-    public async Task CreateEmbedding(AdDto ad, CancellationToken ct)
-    {
-        var existing = await _unitOfWork.Ads.GetByIdAsync(ad.Id, ct);
-        if (existing == null) { throw new AdNotFoundException($"Ad with id: {ad.Id} was not found"); }
+        originalAd.IsReupload = isReupload;
+        originalAd.ReadyToBePresented = true;
         
-        var embedding = await _textAnalysisService.GenerateTextEmbeddingAsync(ad.Description, ct);
-
-        existing.DescriptionEmbedding = embedding;
-        
-        _unitOfWork.Ads.Update(existing);
-        
-        var result = await _unitOfWork.CommitAsync(ct);
-        if (result <= 0) { throw new FailedToSetEmbeddingException("Failed to set embedding"); }
-    }
-
-    public async Task CreateAiReason(AdDto newAd, AdDto? oldAd, CancellationToken ct)
-    {
-        var existing = await _unitOfWork.Ads.GetByIdAsync(newAd.Id, ct);
-        if (existing == null) { throw new AdNotFoundException($"Ad with id: {newAd.Id} was not found"); }
-        
-        var reason = await _textAnalysisService.AnalyzeDuplicateAsync(newAd, oldAd, ct);
-        
-        existing.ReuploadReason = reason;
-        
-        _unitOfWork.Ads.Update(existing);
-        
-        var result = await _unitOfWork.CommitAsync(ct);
-        if (result <= 0) { throw new FailedToSetReuploadReasonException("Failed to set reupload reason"); }
+        await _unitOfWork.CommitAsync(ct);
     }
 }
